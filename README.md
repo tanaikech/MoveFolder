@@ -60,6 +60,8 @@ It seems that this situation is the current specification. [Ref](https://issuetr
 
 By meticulously following these steps, the script effectively migrates entire folders, including subfolders and files, between any Google Drives, regardless of whether they are personal or shared drives. This report delves into the details of this Google Apps Script, providing a step-by-step explanation of its functionality and implementation.
 
+In the above process, the folder IDs are changed because the folder structure is created for the destination folder while the file IDs are not changed.
+
 # Usage
 
 ## 1. Create a Google Apps Script project
