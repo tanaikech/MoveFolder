@@ -91,7 +91,7 @@ In order to use this library, please install this library.
 1. For APIs you want to use, please enable the APIs at API console.
    - Recently, when it enabled APIs, I had an experience that I was made to wait for several minutes for enabling APIs. So when you enabled APIs at API console, if the error related to APIs occurs, please run again after several minutes.
 
-Of course, when you want to directly use the script of this library without installing the library, you can also achieve it. In that case, please copy and paste the script from the repository to your script editor. By this, you can use it.
+Of course, when you want to directly use the script of this library without installing the library, you can also achieve it. In that case, please copy and paste the script from the repository to your script editor. By this, you can use it. **At that time, please install a library [BatchRequest](https://github.com/tanaikech/BatchRequest).**
 
 This library uses the following 2 scopes.
 
