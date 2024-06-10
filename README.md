@@ -159,4 +159,8 @@ This library has the simple options. These can be used in the object of the argu
 
   1. Initial release.
 
+- v1.0.0 (June 10, 2024)
+
+  1. By email from kindly users, I could notice that permission for this library has been canceled. I'm worried that this might be my misoperation. I apologize for this situation. So, I updated permission to read the library. Please confirm whether you can install this library by the library project key `1UEyIfxDTat6GYRFy5iJ3UGj2QpyVuuQI5i-BsOcHDMr8HadIWailwj4k` again.
+
 [TOP](#top)
