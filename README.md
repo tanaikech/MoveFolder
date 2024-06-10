@@ -86,6 +86,8 @@ When I created a script for this, the script was a bit complicated. So, in order
 
 ## How to install
 
+### Pattern 1: Install this as a Google Apps Script library
+
 In order to use this library, please install this library.
 
 1. [Install BatchRequest library](https://developers.google.com/apps-script/guides/libraries).
@@ -93,14 +95,20 @@ In order to use this library, please install this library.
 1. For APIs you want to use, please enable the APIs at API console.
    - Recently, when it enabled APIs, I had an experience that I was made to wait for several minutes for enabling APIs. So when you enabled APIs at API console, if the error related to APIs occurs, please run again after several minutes.
 
-Of course, when you want to directly use the script of this library without installing the library, you can also achieve it. In that case, please copy and paste the script from the repository to your script editor. By this, you can use it. **At that time, please install a library [BatchRequest](https://github.com/tanaikech/BatchRequest).**
-
 This library uses the following 2 scopes.
 
 - `https://www.googleapis.com/auth/drive`
 - `https://www.googleapis.com/auth/script.external_request`
 
 Also, this library also uses my library [BatchRequest](https://github.com/tanaikech/BatchRequest).
+
+### Pattern 2: Install this by directly copying and pasting this script
+
+Of course, when you want to directly use the script of this library without installing the library, you can also achieve it. In that case, please do the following steps.
+
+1. Copy and paste [the script](https://github.com/tanaikech/MoveFolder/blob/master/MoveFolder.js) from the repository to your script editor.
+2. Install a Google Apps Script library of [BatchRequest](https://github.com/tanaikech/BatchRequest). In this script, in order to move all files with a low process cost, the batch request is used.
+3. When you use this script, you can also use it as `MoveFolder.run({ srcFolderId, dstFolderId })`.
 
 ## 3. Enable Drive API
 
