@@ -102,6 +102,8 @@ This library uses the following 2 scopes.
 
 Also, this library also uses my library [BatchRequest](https://github.com/tanaikech/BatchRequest).
 
+> But, in the recent update on the Google side, it was found that in the current stage, when the other libraries are loaded from a library, an error like `We're sorry, a server error occurred while reading from storage. Error code NOT_FOUND` occurs. So, from v1.0.1, the library of BatchRequest is included in this library.
+
 ### Pattern 2: Install this by directly copying and pasting this script
 
 Of course, when you want to directly use the script of this library without installing the library, you can also achieve it. In that case, please do the following steps.
@@ -170,5 +172,9 @@ This library has the simple options. These can be used in the object of the argu
 - v1.0.0 (June 10, 2024)
 
   1. By email from kindly users, I could notice that permission for this library has been canceled. I'm worried that this might be my misoperation. I apologize for this situation. So, I updated permission to read the library. Please confirm whether you can install this library by the library project key `1UEyIfxDTat6GYRFy5iJ3UGj2QpyVuuQI5i-BsOcHDMr8HadIWailwj4k` again.
+
+- v1.0.1
+
+  1. In the recent update on the Google side, it was found that in the current stage, when the other libraries are loaded from a library, an error like `We're sorry, a server error occurred while reading from storage. Error code NOT_FOUND` occurs. So, from v1.0.1, the library of BatchRequest is included in this library.
 
 [TOP](#top)

@@ -225,7 +225,7 @@ function moveFolder_(object) {
 
   // Move folder including files and folders with batch requests.
   console.log(`Move folder including files and folders with batch requests.`);
-  BatchRequest.EDo({ batchPath: "batch/drive/v3", requests, accessToken });
+  EDo({ batchPath: "batch/drive/v3", requests, accessToken });
 
   console.log("Done.");
 }
