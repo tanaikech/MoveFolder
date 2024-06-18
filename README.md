@@ -177,4 +177,8 @@ This library has the simple options. These can be used in the object of the argu
 
   1. In the recent update on the Google side, it was found that in the current stage, when the other libraries are loaded from a library, an error like `We're sorry, a server error occurred while reading from storage. Error code NOT_FOUND` occurs. So, from v1.0.1, the library of BatchRequest is included in this library.
 
+- v1.0.2 (June 18, 2024)
+
+  1. I forgot to update `appsscript.json`. In this version, it was updated.
+
 [TOP](#top)
