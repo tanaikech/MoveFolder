@@ -9,137 +9,118 @@
 
 # Overview
 
-This is a Google Apps Script library for moving a folder including files and folders on Google Drive.
+This is a simple and powerful Google Apps Script library for moving an entire folder—including all of its subfolders and files—from one location to another on Google Drive.
 
 # Description
 
-This library addresses a common challenge: efficiently moving folders, including their subfolders and files, between Google Drives. This encompasses both personal and shared drives using a script. While Google Drive offers straightforward methods for moving individual files between any drives, directly moving entire folders containing subfolders presents limitations, particularly when shared drives are involved. This script bridges that gap by providing a reliable Google Apps Script solution for such scenarios.
+Moving a single file in Google Drive is easy. However, moving **entire folders with deep subfolders**, especially into or out of Shared Drives, can be very tricky and often causes errors.
 
-Seeing a need, I created this script after receiving several requests. I believe it could be useful for other users, so I published it. If you find this helpful, I'm glad!
+This library solves that problem. It perfectly replicates your folder structure in the new location and safely moves all your files over. Whether you are organizing your personal Drive or managing team files in Shared Drives, this script makes bulk folder movement simple and reliable.
 
-# IMPORTANT: Please read this before you test
+# IMPORTANT: Please read this before you start
 
-- **This script automates moving folders and files within your Google Drive, including those in shared drives. Use caution when running the script, as it will modify your file structure.**
-- **For safe testing, create a sample folder and populate it with some files. If you have a large number of folders and files, consider splitting them into smaller groups for individual testing. Unfortunately, limitations in my environment prevent me from comprehensively testing the script with massive amounts of data.**
-- **Please note that we cannot assume any responsibility or liability for any damage or loss caused by this script. Use it at your own risk.**
+- **Modifies your Drive:** This script will actually move folders and files within your Google Drive. Please be careful, as it directly modifies your file structure.
+- **Test first:** Always test the script safely before moving your important data. We provide a `test.js` script to help you try it out without risking your actual files (see the "How to Test" section below).
+- **Use at your own risk:** We cannot assume any responsibility or liability for any damage, data loss, or other issues caused by this script.
 
-# Issue and workaround
+# Why do you need this script? (Issue & Workaround)
 
-The report tackles the restriction of directly moving folders into or out of shared drives. When a direct move is attempted, the following error messages appear.
+If you try to move a folder directly into a Shared Drive using Google Apps Script (like using `DriveApp` or standard Drive API), you will get an error saying:
 
-For Drive API
-
-```
+```json
 {
   "error": {
     "code": 403,
-    "message": "Moving folders into shared drives is not supported.",
-    "errors": [
-      {
-        "message": "Moving folders into shared drives is not supported.",
-        "domain": "global",
-        "reason": "teamDrivesFolderMoveInNotSupported"
-      }
-    ]
+    "message": "Moving folders into shared drives is not supported."
   }
 }
 ```
 
-For Drive service (DriveApp)
+To bypass this Google limitation, this script does the following automatically:
 
-```
-Exception: Cannot use this operation on a shared drive item.
-```
+1. **Reads the structure:** It scans the original folder to learn how all subfolders and files are organized.
+2. **Recreates the folders:** It builds the exact same folder structure in the destination drive.
+3. **Moves the files:** It moves every single file from the old folders to the newly created matching folders.
+4. **Cleans up:** If (and only if) everything moved successfully without any errors, it deletes the empty original folders.
 
-It seems that this situation is the current specification. [Ref](https://issuetracker.google.com/issues/76201003) and [Ref](https://issuetracker.google.com/issues/207514843) This script in this report overcomes this limitation by employing a multi-step process:
-
-1. **Retrieving Folder Structure**: It meticulously extracts the complete folder hierarchy from the source folder, capturing all subfolders at every level.
-2. **Recreating Folder Structure**: Leveraging the retrieved information, the script meticulously replicates the entire folder structure within the destination drive.
-3. **File Movement**: Individual files are efficiently transferred from the source folder to their corresponding locations within the newly created folder structure in the destination drive.
-4. **Source Folder Removal (Optional)**: Once the files are safely relocated, the script can optionally remove the original source folder to ensure a clean and organized workspace.
-
-By meticulously following these steps, the script effectively migrates entire folders, including subfolders and files, between any Google Drives, regardless of whether they are personal or shared drives. This report delves into the details of this Google Apps Script, providing a step-by-step explanation of its functionality and implementation.
-
-In the above process, the folder IDs are changed because the folder structure is created for the destination folder while the file IDs are not changed.
+_(Note: File IDs stay exactly the same, but Folder IDs will change because new folders are created in the destination.)_
 
 # Usage
 
-## 1. Create a Google Apps Script project
+## Step 1: Create a Google Apps Script project
 
-In this report, Google Apps Script is used. Of course, the approach introducing this report can also be used in other languages.
+Go to [Google Apps Script](https://script.google.com/) and create a new project. Open the script editor.
 
-Here, in order to test the following sample scripts, please create a standalone Google Apps Script project. Of course, this script can also be used with the container-bound script.
+## Step 2: Install this Library
 
-And, please open the script editor of the Google Apps Script project.
+You can use this script in two ways.
 
-## 2. Install a Google Apps Script library
+### Method A: Install as a Library (Recommended)
 
-When I created a script for this, the script was a bit complicated. So, in order to easily use this script, I created it as a Google Apps Script library. Of course, you can see the actual script of this library at [my repository](https://github.com/tanaikech/MoveFolder).
+1. Click on the plus (`+`) icon next to **Libraries** in the left menu.
+2. Enter the Project Key: **`1UEyIfxDTat6GYRFy5iJ3UGj2QpyVuuQI5i-BsOcHDMr8HadIWailwj4k`**
+3. Select the latest version and click **Add**.
 
-## Library's project key
+_(Note: This library also uses the `BatchRequest` library internally to move files quickly. From v1.0.1, it is fully included inside MoveFolder, so you do not need to install `BatchRequest` separately!)_
 
-```
-1UEyIfxDTat6GYRFy5iJ3UGj2QpyVuuQI5i-BsOcHDMr8HadIWailwj4k
-```
+### Method B: Copy and Paste directly
 
-<a name="Howtoinstall"></a>
+If you prefer not to use it as an attached library:
 
-## How to install
+1. Copy the code from `MoveFolder.js` in this repository and paste it into a new file in your script editor.
+2. You will also need to copy the code from `BatchRequest.js` into your project.
 
-### Pattern 1: Install this as a Google Apps Script library
+## Step 3: Enable the Drive API
 
-In order to use this library, please install this library.
+This script requires the advanced Drive API to function.
 
-1. [Install BatchRequest library](https://developers.google.com/apps-script/guides/libraries).
-   - Library's project key is **`1UEyIfxDTat6GYRFy5iJ3UGj2QpyVuuQI5i-BsOcHDMr8HadIWailwj4k`**.
-1. For APIs you want to use, please enable the APIs at API console.
-   - Recently, when it enabled APIs, I had an experience that I was made to wait for several minutes for enabling APIs. So when you enabled APIs at API console, if the error related to APIs occurs, please run again after several minutes.
+1. Click on the plus (`+`) icon next to **Services** in the left menu.
+2. Find **Drive API** in the list.
+3. Click **Add**.
 
-This library uses the following 2 scopes.
+## Step 4: Write your script
 
-- `https://www.googleapis.com/auth/drive`
-- `https://www.googleapis.com/auth/script.external_request`
-
-Also, this library also uses my library [BatchRequest](https://github.com/tanaikech/BatchRequest).
-
-> But, in the recent update on the Google side, it was found that in the current stage, when the other libraries are loaded from a library, an error like `We're sorry, a server error occurred while reading from storage. Error code NOT_FOUND` occurs. So, from v1.0.1, the library of BatchRequest is included in this library.
-
-### Pattern 2: Install this by directly copying and pasting this script
-
-Of course, when you want to directly use the script of this library without installing the library, you can also achieve it. In that case, please do the following steps.
-
-1. Copy and paste [the script](https://github.com/tanaikech/MoveFolder/blob/master/MoveFolder.js) from the repository to your script editor.
-2. Install a Google Apps Script library of [BatchRequest](https://github.com/tanaikech/BatchRequest). In this script, in order to move all files with a low process cost, the batch request is used.
-3. When you use this script, you can also use it as `MoveFolder.run({ srcFolderId, dstFolderId })`.
-
-## 3. Enable Drive API
-
-This script uses Drive API. So, please enable Drive API at Advanced Google services. [Ref](https://developers.google.com/apps-script/guides/services/advanced#enable_advanced_services)
-
-## 4. Sample script
-
-After the library is installed and Drive API is enabled, you can test this script. Please copy and paste the following script to the script editor installing the library.
-
-Please set the source folder ID and the destination folder ID.
+Copy and paste the following sample code into your script editor. Replace the `###` with your actual folder IDs.
 
 ```javascript
 function myFunction() {
-  const srcFolderId = "###";
-  const dstFolderId = "###";
-  MoveFolder.run({ srcFolderId, dstFolderId });
+  const srcFolderId = "###"; // The ID of the folder you want to move
+  const dstFolderId = "###"; // The ID of the place you want to move it to
+
+  // Run the move process
+  MoveFolder.run({ srcFolderId: srcFolderId, dstFolderId: dstFolderId });
 }
 ```
 
-When you run the function `myFunction`, the folder of the folder `srcFolderId` is moved to the folder `dstFolderId`.
+_Tip: You can find a Folder ID by opening the folder in Google Drive and looking at the URL: `https://drive.google.com/drive/folders/[THIS_IS_THE_ID]`_
 
-## 5. Options of this library
+## Step 5: Advanced Options
 
-This library has the simple options. These can be used in the object of the argument of `run` method.
+You can pass additional options into the `run` method by adding them to the object:
 
-- `srcFolderId`: Folder ID of the source folder.
-- `dstFolderId`: Folder ID of the destination folder.
-- `accessToken`: Default is `ScriptApp.getOAuthToken()`. For example, when you want to use the service account, you can use the access token from the service account.
-- `forSharedDrive`: Default is false. When this is true, the process mentioned in the "Issue and workaround" section is forcibly run.
+- `srcFolderId` (Required): The ID of the folder to move.
+- `dstFolderId` (Required): The ID of the destination folder.
+- `accessToken` (Optional): The authorization token. It uses `ScriptApp.getOAuthToken()` by default. You can change this if you are using Service Accounts.
+- `forSharedDrive` (Optional): Default is `false`. If you set this to `true`, the script will forcefully use the complex recreation method even if you are not moving into a Shared Drive.
+
+# How to Test (`test.js`)
+
+To safely verify that this library works in your environment without risking your actual files, we have provided a **`test.js`** file in the root directory of this repository.
+
+### What `test.js` does:
+
+1. Automatically creates temporary "Source" and "Destination" folders in your Drive.
+2. Creates a sample subfolder and fake text files inside the Source folder.
+3. Retrieves the folder structure, then runs the `MoveFolder` script.
+4. Compares the structure before and after to prove the move was 100% accurate.
+5. **Automatically deletes** all temporary folders and files when finished, leaving your Drive clean.
+
+### How to run the test:
+
+1. Copy the code from `test.js` into your Apps Script project.
+2. Ensure you have enabled the Drive API (Step 3).
+3. Select and run the `testMoveFolder()` function from the editor toolbar.
+4. Check the Execution Log to see the step-by-step progress and confirmation of success!
 
 # Reference
 
@@ -165,20 +146,23 @@ This library has the simple options. These can be used in the object of the argu
 
 # Update History
 
-- v1.0.0 (June 6, 2024)
-
-  1. Initial release.
-
-- v1.0.0 (June 10, 2024)
-
-  1. By email from kindly users, I could notice that permission for this library has been canceled. I'm worried that this might be my misoperation. I apologize for this situation. So, I updated permission to read the library. Please confirm whether you can install this library by the library project key `1UEyIfxDTat6GYRFy5iJ3UGj2QpyVuuQI5i-BsOcHDMr8HadIWailwj4k` again.
-
-- v1.0.1 (June 18, 2024)
-
-  1. In the recent update on the Google side, it was found that in the current stage, when the other libraries are loaded from a library, an error like `We're sorry, a server error occurred while reading from storage. Error code NOT_FOUND` occurs. So, from v1.0.1, the library of BatchRequest is included in this library.
+- v1.0.3 (May 06, 2026)
+  1. Refactored the core script for better performance, safety, and readability.
+  2. Enhanced error handling: The script now strictly verifies if file moves were successful before deleting any original source folders, preventing accidental data loss if permission errors occur.
+  3. Introduced parallel processing using `UrlFetchApp.fetchAll` for much faster folder structure retrieval and folder creation.
+  4. Added a standalone test script (`test.js`) to allow safe, automated validation of the library's functionality.
+  5. Updated the README documentation to make it more beginner-friendly and easier to follow.
 
 - v1.0.2 (June 18, 2024)
-
   1. I forgot to update `appsscript.json`. In this version, it was updated.
+
+- v1.0.1 (June 18, 2024)
+  1. In the recent update on the Google side, it was found that in the current stage, when the other libraries are loaded from a library, an error like `We're sorry, a server error occurred while reading from storage. Error code NOT_FOUND` occurs. So, from v1.0.1, the library of BatchRequest is included in this library.
+
+- v1.0.0 (June 10, 2024)
+  1. By email from kindly users, I could notice that permission for this library has been canceled. I'm worried that this might be my misoperation. I apologize for this situation. So, I updated permission to read the library. Please confirm whether you can install this library by the library project key `1UEyIfxDTat6GYRFy5iJ3UGj2QpyVuuQI5i-BsOcHDMr8HadIWailwj4k` again.
+
+- v1.0.0 (June 6, 2024)
+  1. Initial release.
 
 [TOP](#top)
